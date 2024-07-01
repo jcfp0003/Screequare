@@ -11,6 +11,8 @@ const TIMER_RANGE := [1.0, 1.5];
 @onready var LABEL_TIME := $TimeLabel;
 @onready var LABEL_SCORE := $GameWindow/ScoreLabel;
 @onready var PROGRESS_CIRCLE := $GameWindow/RemainingCircleTimer;
+@onready var AUDIO_CLICKED := $ClickSfxPlayer;
+@onready var AUDIO_MISSED := $MissSfxPlayer;
 
 # Score slider selected index
 var score_selector := 0;
@@ -50,6 +52,7 @@ func _main_button_press():
 		game_active = false;
 		return;
 	
+	AUDIO_CLICKED.play();
 	_reset_btn_timer();
 	_move_win_to_rand();
 
@@ -73,6 +76,7 @@ func _process(delta):
 	PROGRESS_CIRCLE.value = timer_current / timer_initial;
 	if timer_current <= 0.0:
 		_reset_btn_timer();
+		AUDIO_MISSED.play();
 		game_score += 1;
 		_move_win_to_rand();
 
