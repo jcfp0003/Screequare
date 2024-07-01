@@ -4,10 +4,13 @@ extends Node
 const WIN_MOVE_SPEED := 0.2;
 # Score slider values
 const AVAIL_SCORES := [10, 25, 50];
+# Game button lifetime random range
+const TIMER_RANGE := [1.0, 1.5];
 
 @onready var GAME_WINDOW := $GameWindow;
 @onready var LABEL_TIME := $TimeLabel;
 @onready var LABEL_SCORE := $GameWindow/ScoreLabel;
+@onready var PROGRESS_CIRCLE := $GameWindow/RemainingCircleTimer;
 
 # Score slider selected index
 var score_selector := 0;
@@ -23,6 +26,9 @@ var game_score := 0;
 # Game button window next target position, used on lerp
 var gamewin_target_position := Vector2.ZERO;
 
+var timer_initial := 0.0;
+var timer_current := 0.0;
+
 # Start game button pressed, reset game progress and relocate button window randomly
 func _play_button_press():
 	GAME_WINDOW.visible = true;
@@ -31,17 +37,20 @@ func _play_button_press():
 	game_timer = 0.0;
 	game_score = AVAIL_SCORES[score_selector];
 	
+	_reset_btn_timer();
+	
 	_move_win_to_rand();
 	GAME_WINDOW.position = gamewin_target_position;
 
 # Game score button pressed, decrease count and relocate window randomly
 func _main_button_press():
-	#game_score -= 1;
+	game_score -= 1;
 	if game_score <= 0:
 		GAME_WINDOW.visible = false;
 		game_active = false;
 		return;
 	
+	_reset_btn_timer();
 	_move_win_to_rand();
 
 func _process(delta):
@@ -58,6 +67,14 @@ func _process(delta):
 	var milliseconds = fmod(game_timer, 1) * 100
 	LABEL_TIME.text = "%02d:%02d:%02d" % [minutes, seconds, milliseconds]
 	LABEL_SCORE.text = "%d" % game_score;
+	
+	# Update current click timer
+	timer_current -= delta;
+	PROGRESS_CIRCLE.value = timer_current / timer_initial;
+	if timer_current <= 0.0:
+		_reset_btn_timer();
+		game_score += 1;
+		_move_win_to_rand();
 
 # Sets new random position in all screen area
 func _move_win_to_rand():
@@ -69,6 +86,11 @@ func _move_win_to_rand():
 	gamewin_target_position.y = randi_range(0, display_siz.y - 400) + display_pos.y;
 	
 	#print(target_display, gamewin_target_position);
+
+# Resets game button timer to a new random value
+func _reset_btn_timer():
+	timer_initial = randf_range(TIMER_RANGE[0], TIMER_RANGE[1]);
+	timer_current = timer_initial;
 
 func _exit_pressed():
 	get_tree().quit();
