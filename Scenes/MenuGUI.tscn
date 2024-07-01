@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://nagtfvus54ti"]
+[gd_scene load_steps=28 format=3 uid="uid://nagtfvus54ti"]
 
 [ext_resource type="Script" path="res://Scripts/TitleAnimation.gd" id="1_q2fv6"]
 [ext_resource type="Script" path="res://Scripts/GameControl.gd" id="2_ftny7"]
@@ -147,6 +147,9 @@ font_size = 24
 font_color = Color(0, 0, 0, 1)
 outline_size = 8
 
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_6vfjs"]
+size = Vector2(64, 64)
+
 [node name="MenuGui" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -154,6 +157,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_q2fv6")
 
 [node name="GameControl" type="Node" parent="."]
 script = ExtResource("2_ftny7")
@@ -218,7 +222,6 @@ text = "Screequare"
 label_settings = SubResource("LabelSettings_130k6")
 horizontal_alignment = 1
 vertical_alignment = 1
-script = ExtResource("1_q2fv6")
 
 [node name="Play" type="Button" parent="."]
 layout_mode = 1
@@ -250,15 +253,15 @@ icon = ExtResource("3_my0yo")
 icon_alignment = 1
 expand_icon = true
 
-[node name="AnimationTree" type="AnimationTree" parent="."]
+[node name="TitleAnimTree" type="AnimationTree" parent="."]
 tree_root = SubResource("AnimationNodeStateMachine_xao1h")
-anim_player = NodePath("../AnimationPlayer")
+anim_player = NodePath("../TitleAnimPlayer")
 parameters/conditions/exitHovered = false
 parameters/conditions/exitUnhovered = false
 parameters/conditions/playHovered = false
 parameters/conditions/playUnhovered = false
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+[node name="TitleAnimPlayer" type="AnimationPlayer" parent="."]
 libraries = {
 "": SubResource("AnimationLibrary_yom7h"),
 "MainMenu": SubResource("AnimationLibrary_7hdt2")
@@ -307,11 +310,21 @@ offset_bottom = 50.0
 text = "50"
 label_settings = SubResource("LabelSettings_1xoy7")
 
+[node name="Button" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 33.0
+offset_top = 229.0
+offset_right = 105.0
+offset_bottom = 301.0
+icon = SubResource("PlaceholderTexture2D_6vfjs")
+
 [connection signal="pressed" from="GameControl/GameWindow/MainButton" to="GameControl" method="_main_button_press"]
-[connection signal="mouse_entered" from="Play" to="." method="_play_button_hovered"]
-[connection signal="mouse_exited" from="Play" to="." method="_play_button_exited"]
+[connection signal="mouse_entered" from="Play" to="." method="_play_btn_hovered"]
+[connection signal="mouse_exited" from="Play" to="." method="_play_btn_unhovered"]
 [connection signal="pressed" from="Play" to="GameControl" method="_play_button_press"]
-[connection signal="mouse_entered" from="Exit" to="." method="_exit_button_hovered"]
-[connection signal="mouse_exited" from="Exit" to="." method="_exit_button_exited"]
+[connection signal="mouse_entered" from="Exit" to="." method="_exit_btn_hovered"]
+[connection signal="mouse_exited" from="Exit" to="." method="_exit_btn_unhovered"]
 [connection signal="pressed" from="Exit" to="GameControl" method="_exit_pressed"]
 [connection signal="value_changed" from="ScoreSlider" to="GameControl" method="_score_drag_changed"]
+[connection signal="pressed" from="Button" to="GameControl" method="_main_button_press"]
