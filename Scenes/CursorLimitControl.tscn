@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://bgxaackywr4bg"]
+
+[ext_resource type="Script" path="res://Scripts/DangerAreaControl.gd" id="1_jih5b"]
+[ext_resource type="PackedScene" uid="uid://dpshtd5npenpo" path="res://Scenes/cursor_block_window.tscn" id="2_w4epv"]
+
+[node name="CursorLimitControl" type="Node"]
+script = ExtResource("1_jih5b")
+LIMIT_WINDOW_PREFAB = ExtResource("2_w4epv")

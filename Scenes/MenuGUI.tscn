@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3 uid="uid://nagtfvus54ti"]
+[gd_scene load_steps=42 format=3 uid="uid://nagtfvus54ti"]
 
 [ext_resource type="Script" path="res://Scripts/TitleAnimation.gd" id="1_q2fv6"]
 [ext_resource type="Script" path="res://Scripts/GameControl.gd" id="2_ftny7"]
@@ -9,12 +9,21 @@
 [ext_resource type="Texture2D" uid="uid://brhn7a3h4ymrk" path="res://Sprites/joystickLeft.png" id="4_fgqic"]
 [ext_resource type="Texture2D" uid="uid://c5jhysdhfch57" path="res://Sprites/circleOutBlack.png" id="4_u4dio"]
 [ext_resource type="AudioStream" uid="uid://3jmatshduro6" path="res://Sfx/ding.wav" id="4_ueynl"]
+[ext_resource type="AudioStream" uid="uid://dglmmtwinnc88" path="res://Sfx/dingding.wav" id="4_xar2a"]
 [ext_resource type="Texture2D" uid="uid://bctdkr6d6inou" path="res://Sprites/joystickRight.png" id="5_p1dhn"]
 [ext_resource type="Texture2D" uid="uid://b5wnt5eknny3b" path="res://Sprites/circleWhite.png" id="5_v3sfo"]
 [ext_resource type="AudioStream" uid="uid://ccx0u1fy20o6x" path="res://Sfx/puaj.wav" id="6_thbe2"]
 [ext_resource type="Texture2D" uid="uid://ckgb6f8k22i4b" path="res://Sprites/exitRight.png" id="6_w3k7p"]
 [ext_resource type="AudioStream" uid="uid://c3pinge1vp07a" path="res://Sfx/bum.wav" id="9_a21ml"]
+[ext_resource type="Script" path="res://Scripts/DangerAreaControl.gd" id="11_18wcb"]
+[ext_resource type="PackedScene" uid="uid://dpshtd5npenpo" path="res://Scenes/cursor_block_window.tscn" id="12_huppj"]
 [ext_resource type="Texture2D" uid="uid://cu0ggo3hca4is" path="res://Sprites/audioOn.png" id="13_3tbn8"]
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_c3t0i"]
+random_pitch = 1.15
+streams_count = 1
+stream_0/stream = ExtResource("4_ueynl")
+stream_0/weight = 1.0
 
 [sub_resource type="SystemFont" id="SystemFont_qmuca"]
 font_names = PackedStringArray("Palatino Linotype")
@@ -177,6 +186,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
 script = ExtResource("1_q2fv6")
 
 [node name="AudioManager" type="Node" parent="."]
@@ -202,7 +212,11 @@ scale = Vector2(0.4, 0.4)
 texture = ExtResource("13_3tbn8")
 
 [node name="PlaySfxPlayer" type="AudioStreamPlayer" parent="AudioManager"]
-stream = ExtResource("4_ueynl")
+stream = ExtResource("4_xar2a")
+bus = &"SFX"
+
+[node name="GUIHoverSfxPlayer" type="AudioStreamPlayer" parent="AudioManager"]
+stream = SubResource("AudioStreamRandomizer_c3t0i")
 bus = &"SFX"
 
 [node name="GameControl" type="Node" parent="."]
@@ -241,7 +255,7 @@ texture_over = ExtResource("4_u4dio")
 texture_progress = ExtResource("5_v3sfo")
 
 [node name="ScoreLabel" type="Label" parent="GameControl/GameWindow"]
-anchors_preset = -1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_top = 10.0
@@ -284,6 +298,11 @@ bus = &"SFX"
 [node name="MissSfxPlayer" type="AudioStreamPlayer" parent="GameControl"]
 stream = SubResource("AudioStreamRandomizer_alnf4")
 bus = &"SFX"
+
+[node name="DangerAreaControl" type="Node" parent="." node_paths=PackedStringArray("GAME_SQUARE_WINDOW")]
+script = ExtResource("11_18wcb")
+GAME_SQUARE_WINDOW = NodePath("../GameControl/GameWindow")
+LIMIT_WINDOW_PREFAB = ExtResource("12_huppj")
 
 [node name="Title" type="Label" parent="."]
 layout_mode = 1
@@ -392,14 +411,22 @@ libraries = {
 "MainMenu": SubResource("AnimationLibrary_7hdt2")
 }
 
+[connection signal="mouse_entered" from="AudioManager/SFXVolumeSlider" to="AudioManager" method="_gui_item_hovered"]
 [connection signal="value_changed" from="AudioManager/SFXVolumeSlider" to="AudioManager" method="_on_sfx_volume_slider_value_changed"]
+[connection signal="SIGNAL_GAME_BUTTON_MISSED" from="GameControl" to="DangerAreaControl" method="_spawn_new_windows"]
+[connection signal="SIGNAL_GAME_BUTTON_PRESSED" from="GameControl" to="DangerAreaControl" method="_spawn_new_windows"]
+[connection signal="SIGNAL_GAME_ENDED" from="GameControl" to="DangerAreaControl" method="_clear_windows"]
 [connection signal="pressed" from="GameControl/GameWindow/MainButton" to="GameControl" method="_main_button_press"]
+[connection signal="DANGER_AREA_ENTERED" from="DangerAreaControl" to="GameControl" method="_missed_button_press"]
+[connection signal="mouse_entered" from="ScoreSlider" to="AudioManager" method="_gui_item_hovered"]
 [connection signal="value_changed" from="ScoreSlider" to="GameControl" method="_score_drag_changed"]
 [connection signal="mouse_entered" from="Play" to="." method="_play_btn_hovered"]
+[connection signal="mouse_entered" from="Play" to="AudioManager" method="_gui_item_hovered"]
 [connection signal="mouse_exited" from="Play" to="." method="_play_btn_unhovered"]
-[connection signal="pressed" from="Play" to="GameControl" method="_play_button_press"]
 [connection signal="pressed" from="Play" to="AudioManager" method="_on_play_pressed"]
+[connection signal="pressed" from="Play" to="GameControl" method="_play_button_press"]
 [connection signal="mouse_entered" from="Exit" to="." method="_exit_btn_hovered"]
+[connection signal="mouse_entered" from="Exit" to="AudioManager" method="_gui_item_hovered"]
 [connection signal="mouse_exited" from="Exit" to="." method="_exit_btn_unhovered"]
 [connection signal="pressed" from="Exit" to="GameControl" method="_exit_pressed"]
 [connection signal="pressed" from="DebugGameButton" to="GameControl" method="_main_button_press"]
